@@ -72,8 +72,8 @@ module Sidekiq
         def transaction(&block)
           result = nil
           Sidekiq.redis do |conn|
-            conn.multi do
-              result = yield(conn)
+            conn.multi do |pipeline|
+              result = yield(pipeline)
             end
           end
           result
@@ -94,7 +94,7 @@ module Sidekiq
             public_send("#{attribute}=", value)
           end
           Sidekiq.redis do |conn|
-            conn.sadd("#{self.class.redis_prefix}:#{superjob_id}:subjob_keys", "#{self.class.redis_prefix}:#{superjob_id}:#{subjob_id}")
+            conn.sadd?("#{self.class.redis_prefix}:#{superjob_id}:subjob_keys", "#{self.class.redis_prefix}:#{superjob_id}:#{subjob_id}")
           end
         end
       end
